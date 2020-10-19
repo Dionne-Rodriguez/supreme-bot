@@ -1,4 +1,4 @@
  .DS_Store
  example.png
- /node_modules
- /config
+ ./node_modules
+ ./config
