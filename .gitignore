@@ -2,3 +2,4 @@
  example.png
  ./node_modules
  ./config
+ *node_modules/puppeteer/.local-chromium/mac-800071/chrome-mac/Chromium.app/Contents/Frameworks/Chromium\ Framework.framework/Versions/86.0.4240.0/Chromium\ Framework
