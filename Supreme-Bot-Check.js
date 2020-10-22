@@ -16,18 +16,12 @@ scraperProduct("https://www.supremenewyork.com/shop")
 
 async function scraperProduct(url) {
     const browser = await puppeteer.launch({
+        executablePath: '/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome',
         headless: false,
         slowMo: 75
     });
     const page = await browser.newPage();
     await page.goto(url)
-
-
-    //refresh the page until the new tags are not on the previous stored new tags
-    //when the new tags don't match with the old new tags stop the refresh
-    //grab the first 5 product links
-    //procede with the function
-   
 
     const getSupremeLinks = await page.evaluate(() => {
         let newSupremeProductLinks = [];
@@ -55,67 +49,44 @@ async function scraperProduct(url) {
         'https://www.supremenewyork.com/shop/skate/bump7gjf4']
         let ul = document.querySelector('#shop-scroller');
         let li = ul.querySelectorAll('li')
-
+            console.log(li);
+            
         li.forEach(el => { 
-             if (el.childNodes[0].childNodes[0].attributes[0].nodeValue == "new_item_tag") {
-                 console.log("CHECKING");
-                 
+             if (el.childNodes[0].childNodes[0].attributes[0].nodeValue == "new_item_tag"
+              && el.className == "shirts" 
+              || el.className == "sweatshirts") {                 
                 newSupremeProductLinks.push(el.childNodes[0].href)
              }
         });
         
-        const allEqual = arr => arr.every( v => v === arr[0] )
-        allEqual( [1,1,1,1] )
-        // if(newSupremeProductLinks === letOldSupremeProductLinks) {
-        //     console.log("no new products found");
-        //     page.reload({ waitUntil: 'networkidle0' })
-             
-        // }
-        //  else {
-        //      console.log("found new Products");
-             
-        //     return newSupremeProductLinks
-        // }
-
-        return "no new products found"
+        return newSupremeProductLinks
     })
         .catch(() => console.log("error"));
 
         console.log("NEW",getSupremeLinks)
 
-    //getAvailableSupremeProducts(page,getSupremeLinks);
+    getAvailableSupremeProducts(page,getSupremeLinks);
 
-    
-
-
-    // await browser.close();
 }
 const getAvailableSupremeProducts = async (page, links) => {
-    // links = [
-    //     'https://www.supremenewyork.com/shop/jackets/xni1oh9ca',
-    //     'https://www.supremenewyork.com/shop/jackets/zvj0wbe51',
-    //   ]
-    let reducedAmountsOfLinks = links.slice(0,5)
-    console.log("SLICED LINKS", reducedAmountsOfLinks);
+  
+const purchaseLinks = []
+const foundShirt = links.find(element => element.includes("shirts"));
+const foundSweatShirt = links.find(element => element.includes("sweatshirts"));
+purchaseLinks.push(foundShirt)
+purchaseLinks.push(foundSweatShirt)
     
-    for (let i = 0; i < reducedAmountsOfLinks.length; i++) {
-        page.goto(links[i])
+    for (let i = 0; i < purchaseLinks.length; i++) {
+        page.goto(purchaseLinks[i]);
         await page.waitForNavigation({ waitUntil: 'networkidle0' });
 
-        //evaluates the page context
         if (await page.$("input[name=commit]") !== null) {
-            // const form = await page.$('#cart-addf');
             await page.click('input[name=commit]'); 
             page.waitForSelector("a[data-no-turbolink]")
-            //await page.waitForNavigation();
-            //await form.evaluate( form => form.click())
-           // page.click("input[name=commit]")
-
         }
 
         
     }
-console.log("HEREEE");
 
  await page.click('a[data-no-turbolink]'); 
 
@@ -128,34 +99,23 @@ console.log("HEREEE");
 async function enterPaymentInfo(page){
     page.waitForSelector('#order_billing_name')
     await page.evaluate(() => {
-        document.querySelector('#order_billing_name').value = "Dave";
-        document.querySelector('#order_email').value = "Dave@gmail.com";
-        document.querySelector('#order_tel').value = "7361263728";
-        document.querySelector('#bo').value = "128 Walnut St."
+        document.querySelector('#order_billing_name').value = "Joshua Perez";
+        document.querySelector('#order_email').value = "Boysforlife0@icloud.com";
+        document.querySelector('#order_tel').value = "7815840334";
+        document.querySelector('#bo').value = "7 Rhodes ave"
         document.querySelector('#oba3').value = "3";
-        document.querySelector('#order_billing_zip').value = "01905";
-        document.querySelector('#order_billing_city').value = "Sin City";
+        document.querySelector('#order_billing_zip').value = "01904";
+        document.querySelector('#order_billing_city').value = "Lynn";
         document.querySelector('#order_billing_state').value = "MA";
-        document.querySelector('#rnsnckrn').value = "129327341928";
-        document.querySelector('#credit_card_month').value = "06";
+        document.querySelector('#rnsnckrn').value = "4145180003483623";
+        document.querySelector('#credit_card_month').value = "07";
         document.querySelector('#credit_card_year').value = "2023";
-        document.querySelector('#orcer').value = "284";
+        document.querySelector('#orcer').value = "121";
         document.querySelector('#order_terms').parentElement.click()
-        // document.querySelector('#b').value = b;
-        // document.querySelector('#c').click();
       });
-    // await page.type('input[name=order[billing_name]]', 'test comment', {delay: 20})
-    // await page.type('input[name=order[email]]', 'test comment', {delay: 20})
-    // await page.type('input[name=order[tel]]', 'test comment', {delay: 20})
-    // await page.type('input[name=order[billing_address]]', 'test comment', {delay: 20})
-    // await page.type('input[name=order[billing_address_2]]', 'test comment', {delay: 20})
-    // await page.type('input[name=orderorder[billing_zip]]', 'test comment', {delay: 20})
 
 }
 
-function sendPurchaseNotification(){
-
-}
 
 
 
