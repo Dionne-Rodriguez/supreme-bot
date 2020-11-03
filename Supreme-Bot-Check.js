@@ -16,6 +16,7 @@ async function scraperProduct(category) {
         slowMo: 200
     });
     const page = await browser.newPage();
+    await page.setViewport({ width: 1366, height: 768});
     await page.goto(`https://www.supremenewyork.com/shop/all/${category}`)
 
 //*[@id="container"]/li[1]/div/div[1]/a
