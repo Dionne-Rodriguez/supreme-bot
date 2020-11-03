@@ -1,20 +1,14 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
 
 const puppeteer = require('puppeteer')
-const nodeMailer = require('nodemailer')
-const keys = require("./config/keys")
 
-const transporter = nodeMailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: keys.emailFrom,
-        pass: keys.emailPass
-    },
-})
 
-scraperProduct("https://www.supremenewyork.com/shop")
 
-async function scraperProduct(url) {
+
+
+scraperProduct("shirts")
+
+async function scraperProduct(category) {
     const browser = await puppeteer.launch({
         executablePath: '/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome',
         headless: false,
@@ -22,80 +16,49 @@ async function scraperProduct(url) {
         slowMo: 200
     });
     const page = await browser.newPage();
-    await page.goto(url)
+    await page.goto(`https://www.supremenewyork.com/shop/all/${category}`)
 
-    const getSupremeLinks = await page.evaluate(() => {
-        let newSupremeProductLinks = [];
-        let OldSupremeProductLinks = ['https://www.supremenewyork.com/shop/shoes/tfwm0d3tb',
-        'https://www.supremenewyork.com/shop/hats/dmbz4ytfx',
-        'https://www.supremenewyork.com/shop/jackets/rfc1ir8zo',
-        'https://www.supremenewyork.com/shop/jackets/dyupjinrd',
-        'https://www.supremenewyork.com/shop/jackets/owi1hbg04',
-        'https://www.supremenewyork.com/shop/shirts/qtpkj86ma',
-        'https://www.supremenewyork.com/shop/shirts/ov7feyd38',
-        'https://www.supremenewyork.com/shop/sweatshirts/jxzscypmb',
-        'https://www.supremenewyork.com/shop/sweatshirts/ey2bz0fg7',
-        'https://www.supremenewyork.com/shop/sweatshirts/xljctrkau',
-        'https://www.supremenewyork.com/shop/tops-sweaters/qpcy4t89v',
-        'https://www.supremenewyork.com/shop/tops-sweaters/uk1fsbq4n',
-        'https://www.supremenewyork.com/shop/pants/q1i3depsc',
-        'https://www.supremenewyork.com/shop/pants/gspaid2rv',
-        'https://www.supremenewyork.com/shop/pants/j12wldagx',
-        'https://www.supremenewyork.com/shop/hats/gnyemz2tb',
-        'https://www.supremenewyork.com/shop/hats/mdps36b02',
-        'https://www.supremenewyork.com/shop/hats/v4imdyu2r',
-        'https://www.supremenewyork.com/shop/hats/jbnuwprdx',
-        'https://www.supremenewyork.com/shop/accessories/t435zxwsi',
-        'https://www.supremenewyork.com/shop/skate/whutpe1wr',
-        'https://www.supremenewyork.com/shop/skate/bump7gjf4']
-        let ul = document.querySelector('#shop-scroller');
-        let li = ul.querySelectorAll('li')
-            console.log(li);
-            
-        li.forEach(el => { 
-             if (el.childNodes[0].childNodes[0].attributes[0].nodeValue == "new_item_tag"
-              && el.className == "jackets") {                 
-                newSupremeProductLinks.push(el.childNodes[0].href)
-             }
-        });
+//*[@id="container"]/li[1]/div/div[1]/a
+
+
+    // const [a] = await page.$x("//a[contains(., 'Shadow Plaid Fleece Shirt red')]")
+    // if (a) {
+    //     console.log("found!!");
         
-        return newSupremeProductLinks
-    })
-        .catch(() => console.log("error"));
+    //     await a.click();
+    // }
 
-        //console.log("NEW",getSupremeLinks)
 
-    getAvailableSupremeProducts(page,getSupremeLinks);
-
-}
-const getAvailableSupremeProducts = async (page, links) => {
-  
-// const purchaseLinks = []
-// const foundShirt = links.find(element => element.includes("shirts"));
-// const foundSweatShirt = links.find(element => element.includes("sweatshirts"));
-// purchaseLinks.push(foundShirt)
-// purchaseLinks.push(foundSweatShirt)
     
-    for (let i = 0; i < links.length; i++) {
-        page.goto(links[i]);
-        await page.waitForNavigation({ waitUntil: 'networkidle0' });
-
-        const element = await page.$("h2");
-        const text = await page.evaluate(element => element.textContent, element);
-        console.log(text);
         
+      
+            await page.evaluate(() => {
+                [...document.querySelectorAll('.name-link')].find(element => element.textContent.includes('Chains Rayon S/S Shirt')).click();
+              });
 
-        if(text.includes("Fleece")) {
+             
+              getAvailableSupremeProducts(this.page);
+
+              await page.evaluate(() => {
+                console.log(document.querySelector('#add-remove-buttons'));
+                page.waitForSelector('#add-remove-buttons > input')
+                document.querySelector('#add-remove-buttons > input')
+              })
+              await page.click('input[name=commit]'); 
+
+              await page.click('input[name=commit]');
+              
+          
+          
+}
+const getAvailableSupremeProducts = async (page) => {
+        console.log("HEREE");
+        
             if (await page.$("input[name=commit]") !== null) {
-                await page.click('button[data-style-name=Black]'); 
+                //await page.click('button[data-style-name=Black]'); 
                 await page.click('input[name=commit]'); 
                 page.waitForSelector("a[data-no-turbolink]")
             }
-           break
-        }
-        
-        
-    }
 
     await page.click('a[data-no-turbolink]'); 
 
