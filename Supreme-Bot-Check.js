@@ -18,7 +18,8 @@ async function scraperProduct(url) {
     const browser = await puppeteer.launch({
         executablePath: '/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome',
         headless: false,
-        slowMo: 75
+        userDataDir: "/Users/Dionne/Library/Application\ Support/Google/Chrome",
+        slowMo: 200
     });
     const page = await browser.newPage();
     await page.goto(url)
@@ -53,8 +54,7 @@ async function scraperProduct(url) {
             
         li.forEach(el => { 
              if (el.childNodes[0].childNodes[0].attributes[0].nodeValue == "new_item_tag"
-              && el.className == "shirts" 
-              || el.className == "sweatshirts") {                 
+              && el.className == "jackets") {                 
                 newSupremeProductLinks.push(el.childNodes[0].href)
              }
         });
@@ -63,32 +63,41 @@ async function scraperProduct(url) {
     })
         .catch(() => console.log("error"));
 
-        console.log("NEW",getSupremeLinks)
+        //console.log("NEW",getSupremeLinks)
 
     getAvailableSupremeProducts(page,getSupremeLinks);
 
 }
 const getAvailableSupremeProducts = async (page, links) => {
   
-const purchaseLinks = []
-const foundShirt = links.find(element => element.includes("shirts"));
-const foundSweatShirt = links.find(element => element.includes("sweatshirts"));
-purchaseLinks.push(foundShirt)
-purchaseLinks.push(foundSweatShirt)
+// const purchaseLinks = []
+// const foundShirt = links.find(element => element.includes("shirts"));
+// const foundSweatShirt = links.find(element => element.includes("sweatshirts"));
+// purchaseLinks.push(foundShirt)
+// purchaseLinks.push(foundSweatShirt)
     
-    for (let i = 0; i < purchaseLinks.length; i++) {
-        page.goto(purchaseLinks[i]);
+    for (let i = 0; i < links.length; i++) {
+        page.goto(links[i]);
         await page.waitForNavigation({ waitUntil: 'networkidle0' });
 
-        if (await page.$("input[name=commit]") !== null) {
-            await page.click('input[name=commit]'); 
-            page.waitForSelector("a[data-no-turbolink]")
-        }
+        const element = await page.$("h2");
+        const text = await page.evaluate(element => element.textContent, element);
+        console.log(text);
+        
 
+        if(text.includes("Fleece")) {
+            if (await page.$("input[name=commit]") !== null) {
+                await page.click('button[data-style-name=Black]'); 
+                await page.click('input[name=commit]'); 
+                page.waitForSelector("a[data-no-turbolink]")
+            }
+           break
+        }
+        
         
     }
 
- await page.click('a[data-no-turbolink]'); 
+    await page.click('a[data-no-turbolink]'); 
 
 
  enterPaymentInfo(page)
@@ -98,6 +107,9 @@ purchaseLinks.push(foundSweatShirt)
 
 async function enterPaymentInfo(page){
     page.waitForSelector('#order_billing_name')
+
+    page.waitForSelector('#credit_card_year')
+
     await page.evaluate(() => {
         document.querySelector('#order_billing_name').value = "Joshua Perez";
         document.querySelector('#order_email').value = "Boysforlife0@icloud.com";
