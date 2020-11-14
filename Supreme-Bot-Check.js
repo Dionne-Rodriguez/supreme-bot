@@ -6,67 +6,33 @@ const puppeteer = require('puppeteer')
 
 
 
+//arg 1: Category arg 2: product name
 scraperProduct("shirts")
 
-async function scraperProduct(category) {
+async function scraperProduct(category, productName) {
     const browser = await puppeteer.launch({
         executablePath: '/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome',
         headless: false,
-        userDataDir: "/Users/Dionne/Library/Application\ Support/Google/Chrome",
+        //userDataDir: "/Users/Dionne/Library/Application\ Support/Google/Chrome",
         slowMo: 200
     });
     const page = await browser.newPage();
     await page.setViewport({ width: 1366, height: 768});
     await page.goto(`https://www.supremenewyork.com/shop/all/${category}`)
 
-//*[@id="container"]/li[1]/div/div[1]/a
-
-
-    // const [a] = await page.$x("//a[contains(., 'Shadow Plaid Fleece Shirt red')]")
-    // if (a) {
-    //     console.log("found!!");
-        
-    //     await a.click();
-    // }
-
-
-    
-        
-      
             await page.evaluate(() => {
-                [...document.querySelectorAll('.name-link')].find(element => element.textContent.includes('Chains Rayon S/S Shirt')).click();
+                [...document.querySelectorAll('.name-link')].find(element => element.textContent.includes("Hooded Shadow Plaid Shirt")).click();
               });
 
+             await page.waitForSelector('input[name="commit"]', {
+                visible: true,
+              });
+              await page.$eval('input[name="commit"]', elem => elem.click())
+              await page.click('a[data-no-turbolink]'); 
              
-              getAvailableSupremeProducts(this.page);
-
-              await page.evaluate(() => {
-                console.log(document.querySelector('#add-remove-buttons'));
-                page.waitForSelector('#add-remove-buttons > input')
-                document.querySelector('#add-remove-buttons > input')
-              })
-              await page.click('input[name=commit]'); 
-
-              await page.click('input[name=commit]');
-              
+              enterPaymentInfo(page)              
           
           
-}
-const getAvailableSupremeProducts = async (page) => {
-        console.log("HEREE");
-        
-            if (await page.$("input[name=commit]") !== null) {
-                //await page.click('button[data-style-name=Black]'); 
-                await page.click('input[name=commit]'); 
-                page.waitForSelector("a[data-no-turbolink]")
-            }
-
-    await page.click('a[data-no-turbolink]'); 
-
-
- enterPaymentInfo(page)
-    return null
-
 }
 
 async function enterPaymentInfo(page){
