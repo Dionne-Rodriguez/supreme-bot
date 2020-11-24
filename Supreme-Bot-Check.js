@@ -6,19 +6,37 @@ const puppeteer = require('puppeteer')
 
 
 
-//arg 1: Category arg 2: product name
 scraperProduct("shirts")
 
-async function scraperProduct(category, productName) {
+
+
+
+async function scraperProduct(category) {
     const browser = await puppeteer.launch({
         executablePath: '/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome',
         headless: false,
         //userDataDir: "/Users/Dionne/Library/Application\ Support/Google/Chrome",
-        slowMo: 200
+        slowMo: 100
     });
     const page = await browser.newPage();
     await page.setViewport({ width: 1366, height: 768});
     await page.goto(`https://www.supremenewyork.com/shop/all/${category}`)
+
+
+    // foundProduct(this.page)
+    //     const foundProduct = (page) => {
+            if(await page.evaluate(() => {
+                [...document.querySelectorAll('.name-link')].find(element => element.textContent.includes("Hooded Shadow Plaid Shirt")).click()}) == undefined )
+        {
+                console.log("we can't find it");
+                
+              }
+              else {
+                await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] })
+              }
+              
+        //}
+
 
             await page.evaluate(() => {
                 [...document.querySelectorAll('.name-link')].find(element => element.textContent.includes("Hooded Shadow Plaid Shirt")).click();
@@ -28,6 +46,11 @@ async function scraperProduct(category, productName) {
                 visible: true,
               });
               await page.$eval('input[name="commit"]', elem => elem.click())
+
+              await page.waitForSelector('a[data-no-turbolink]', {
+                visible: true,
+              });
+
               await page.click('a[data-no-turbolink]'); 
              
               enterPaymentInfo(page)              
@@ -36,9 +59,9 @@ async function scraperProduct(category, productName) {
 }
 
 async function enterPaymentInfo(page){
-    page.waitForSelector('#order_billing_name')
-
-    page.waitForSelector('#credit_card_year')
+    await page.waitForSelector('#credit_card_year', {
+        visible: true,
+      });    
 
     await page.evaluate(() => {
         document.querySelector('#order_billing_name').value = "Joshua Perez";
@@ -58,6 +81,9 @@ async function enterPaymentInfo(page){
 
 }
 
+async function recapthcha(page) {
+
+}
 
 
 
